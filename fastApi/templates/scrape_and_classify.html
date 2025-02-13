@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Scraping y Clasificación</h1>
+    <form method="post" action="/scrape-and-classify/">
+        <div class="form-group">
+            <label for="mode">Modo de Clasificación:</label>
+            <select name="mode" id="mode" class="form-control">
+                <option value="basic" {% if mode == "basic" %} selected {% endif %}>Básico</option>
+                <option value="advanced" {% if mode == "advanced" %} selected {% endif %}>Avanzado</option>
+
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Iniciar Scraping y Clasificación</button>
+    </form>
+
+    <div id="loading" class="text-center my-4" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Procesando noticias, por favor espera...</p>
+    </div>
+
+    <div id="log-section" class="my-4">
+        <h4>Progreso:</h4>
+        <ul id="log" class="list-group"></ul>
+    </div>
+
+    {% if message %}
+    <p class="text-danger text-center">{{ message }}</p>
+    {% else %}
+    <div id="results" class="table-responsive" style="display: none;">
+        <table id="data" class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 25%;">Título</th>
+                    <th style="width: 35%;">Contenido</th>
+                    <th style="width: 10%;">URL</th>
+                    <th style="width: 15%;">Fuente</th>
+                    <th style="width: 15%;">Clasificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tbody>
+                  {% for row in table_data %}
+                  <tr>
+                    <td>{{ row["Título"] }}</td>
+                    <td>{{ row["Contenido"] }}</td>
+                    <td>
+                      <a href="{{ row["URL"] }}" target="_blank">Enlace</a>
+                    </td>
+                    <td>{{ row["Fuente"] }}</td>
+                    <td>
+                      {% if row["Clasificación"] == "Seguramente verdadera" %}
+                      <span class="badge bg-success">{{ row["Clasificación"] }}</span>
+                      {% elif row["Clasificación"] == "Posiblemente verdadera" %}
+                      <span class="badge bg-info text-dark">{{ row["Clasificación"] }}</span>
+                      {% elif row["Clasificación"] == "Inconcluso" %}
+                      <span class="badge bg-warning text-dark">{{ row["Clasificación"] }}</span>
+                      {% elif row["Clasificación"] == "Posiblemente falsa" %}
+                      <span class="badge bg-danger">{{ row["Clasificación"] }}</span>
+                      {% else %}
+                      <span class="badge bg-dark">{{ row["Clasificación"] }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    <a href="/" class="btn btn-link mt-3">Volver</a>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const logSection = document.getElementById("log-section");
+        const logList = document.getElementById("log");
+        const loading = document.getElementById("loading");
+        const results = document.getElementById("results");
+
+        loading.style.display = "block";
+        logList.innerHTML = "";
+
+        const eventSource = new EventSource("/scraping-logs");
+
+        eventSource.onmessage = function(event) {
+            const logMessage = document.createElement("li");
+            logMessage.textContent = event.data;
+            logMessage.classList.add("list-group-item");
+            logList.appendChild(logMessage);
+        };
+
+        eventSource.onerror = function() {
+            eventSource.close();
+            loading.style.display = "none";
+            results.style.display = "block";
+        };
+    });
+</script>
+{% endblock %}

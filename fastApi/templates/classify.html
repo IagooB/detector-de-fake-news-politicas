@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Resultados de Clasificación</h1>
+  <form method="post" action="/classify/">
+    <div class="form-group">
+      <label for="mode">Modo de Clasificación:</label>
+      <select name="mode" id="mode" class="form-control">
+        <option value="basic" {% if mode == "basic" %}selected{% endif %}>Básico</option>
+        <option value="advanced" {% if mode == "advanced" %}selected{% endif %}>Avanzado</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Reclasificar</button>
+  </form>
+  {% if message %}
+  <p class="text-danger text-center">{{ message }}</p>
+  {% else %}
+  <div class="table-responsive mt-4">
+    <table id="data" class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th style="width: 25%;">Título</th>
+          <th style="width: 35%;">Contenido</th>
+          <th style="width: 10%;">URL</th>
+          <th style="width: 15%;">Fuente</th>
+          <th style="width: 15%;">Clasificación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table_data %}
+        <tr>
+          <td>{{ row["Título"] }}</td>
+          <td>{{ row["Contenido"] }}</td>
+          <td>
+            <a href="{{ row["URL"] }}" target="_blank">Enlace</a>
+          </td>
+          <td>{{ row["Fuente"] }}</td>
+          <td>
+            {% if row["Clasificación"] == "Seguramente verdadera" %}
+            <span class="badge bg-success">{{ row["Clasificación"] }}</span>
+            {% elif row["Clasificación"] == "Posiblemente verdadera" %}
+            <span class="badge bg-info text-dark">{{ row["Clasificación"] }}</span>
+            {% elif row["Clasificación"] == "Inconcluso" %}
+            <span class="badge bg-warning text-dark">{{ row["Clasificación"] }}</span>
+            {% elif row["Clasificación"] == "Posiblemente falsa" %}
+            <span class="badge bg-danger">{{ row["Clasificación"] }}</span>
+            {% else %}
+            <span class="badge bg-dark">{{ row["Clasificación"] }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
