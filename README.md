@@ -36,7 +36,9 @@ Este proyecto desarrolla un sistema automatizado para la detección de **noticia
 │── ├── classifier             # Clasificador de noticias diarias
 │── ├── main            
 │── ├── modelo                # Modelos usados para la clasificación
-│── ├── scrapper              # Extractor de noticias diarias
+│── ├── scrapper
+│── dataset_unificado         # Dataset de noticias verdaderas y falsas
+│── dataset_unificado_pro     # Dataset de noticias verdaderas y falsas procesado con NLTK
 │── requirements.txt          # Dependencias necesarias
 ```
 
